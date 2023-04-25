@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx watch src/server.ts"
+    "dev": "tsx watch src/server.ts",
+    "lint": "eslint src --ext .ts --fix"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +16,11 @@
     "@types/typescript": "^2.0.0",
     "eslint": "^8.39.0",
     "git-commit-msg-linter": "^4.10.0",
+    "tsx": "^3.12.6",
     "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "fastify": "^4.15.0"
   }
 }
