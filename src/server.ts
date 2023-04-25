@@ -1,12 +1,14 @@
 import dotenv from 'dotenv'
 import fastify from 'fastify'
+import { db } from './db'
 
 dotenv.config()
 
 const app = fastify()
 
 app.get('/', async (request, reply) => {
-  return { message: 'Testing...' }
+  const test = await db('sqlite_schema').select('*')
+  return test
 })
 
 const start = async () => {
