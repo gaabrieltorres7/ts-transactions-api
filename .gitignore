@@ -1,4 +1,4 @@
 node_modules
 .env
 dist
-tmp/app.db
+db/app.db
