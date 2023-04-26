@@ -7,8 +7,11 @@ dotenv.config()
 const app = fastify()
 
 app.get('/', async (request, reply) => {
-  const test = await db('sqlite_schema').select('*')
-  return test
+  const transactions = await db('transactions')
+    .where('amount', 1000)
+    .select('*')
+
+  return transactions
 })
 
 const start = async () => {
