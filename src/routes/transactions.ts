@@ -25,6 +25,14 @@ export async function transactionsRoutes(app: FastifyInstance) {
     return res.status(200).send({ transaction })
   })
 
+  app.get('/summary', async (req, res) => {
+    const summary = await db('transactions')
+      .sum('amount', { as: 'total' })
+      .first()
+
+    return res.status(200).send({ summary })
+  })
+
   app.post('/create', async (req, res) => {
     const createTransactionSchema = z.object({
       title: z.string(),
