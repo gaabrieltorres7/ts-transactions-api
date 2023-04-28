@@ -4,6 +4,11 @@ import { z } from 'zod'
 import { db } from '../db'
 
 export async function transactionsRoutes(app: FastifyInstance) {
+  app.get('/', async (req, res) => {
+    const transactions = await db('transactions').select('*')
+    return res.status(200).send({ transactions })
+  })
+
   app.post('/create', async (req, res) => {
     const createTransactionSchema = z.object({
       title: z.string(),
