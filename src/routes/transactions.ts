@@ -2,21 +2,31 @@ import { FastifyInstance } from 'fastify'
 import { randomUUID } from 'node:crypto'
 import { z } from 'zod'
 import { db } from '../db'
+import { validateSessionId } from '../middlewares/validate-session-id'
 
 export async function transactionsRoutes(app: FastifyInstance) {
-  app.get('/', async (req, res) => {
-    const transactions = await db('transactions').select('*')
+  app.get('/', { preHandler: [validateSessionId] }, async (req, res) => {
+    const { sessionId } = req.cookies
+
+    const transactions = await db('transactions')
+      .where('session_id', sessionId)
+      .select('*')
+
     return res.status(200).send({ transactions })
   })
 
-  app.get('/:id', async (req, res) => {
+  app.get('/:id', { preHandler: [validateSessionId] }, async (req, res) => {
     const getTransactionParamsSchema = z.object({
       id: z.string().uuid(),
     })
 
     const { id } = getTransactionParamsSchema.parse(req.params)
 
-    const transaction = await db('transactions').where({ id }).first()
+    const { sessionId } = req.cookies
+
+    const transaction = await db('transactions')
+      .where({ session_id: sessionId, id })
+      .first()
 
     if (!transaction) {
       return res.status(404).send({ message: 'Transaction not found' })
@@ -25,8 +35,11 @@ export async function transactionsRoutes(app: FastifyInstance) {
     return res.status(200).send({ transaction })
   })
 
-  app.get('/summary', async (req, res) => {
+  app.get('/summary', { preHandler: [validateSessionId] }, async (req, res) => {
+    const { sessionId } = req.cookies
+
     const summary = await db('transactions')
+      .where('session_id', sessionId)
       .sum('amount', { as: 'total' })
       .first()
 
