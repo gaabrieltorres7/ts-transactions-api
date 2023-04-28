@@ -9,6 +9,22 @@ export async function transactionsRoutes(app: FastifyInstance) {
     return res.status(200).send({ transactions })
   })
 
+  app.get('/:id', async (req, res) => {
+    const getTransactionParamsSchema = z.object({
+      id: z.string().uuid(),
+    })
+
+    const { id } = getTransactionParamsSchema.parse(req.params)
+
+    const transaction = await db('transactions').where({ id }).first()
+
+    if (!transaction) {
+      return res.status(404).send({ message: 'Transaction not found' })
+    }
+
+    return res.status(200).send({ transaction })
+  })
+
   app.post('/create', async (req, res) => {
     const createTransactionSchema = z.object({
       title: z.string(),
