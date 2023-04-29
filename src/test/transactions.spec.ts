@@ -1,4 +1,4 @@
-import { expect, beforeAll, afterAll, describe, it } from 'vitest'
+import { beforeAll, afterAll, describe, it, expect } from 'vitest'
 import request from 'supertest'
 import { app } from '../app'
 
@@ -21,5 +21,29 @@ describe('Transactions routes', () => {
       })
 
     expect(response.statusCode).toBe(201)
+  })
+
+  it('should be able to list all transactions', async () => {
+    const createTransactionResponse = await request(app.server)
+      .post('/transactions/create')
+      .send({
+        title: 'Test transaction',
+        amount: 500,
+        type: 'credit',
+      })
+
+    const cookies = createTransactionResponse.headers['set-cookie']
+
+    const response = await request(app.server)
+      .get('/transactions')
+      .set('Cookie', cookies)
+      .expect(200)
+
+    expect(response.body.transactions).toEqual([
+      expect.objectContaining({
+        title: 'Test transaction',
+        amount: 500,
+      }),
+    ])
   })
 })
