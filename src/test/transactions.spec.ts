@@ -14,7 +14,7 @@ describe('Transactions routes', () => {
 
   beforeEach(async () => {
     execSync('npm run knex migrate:rollback --all')
-    execSync('npm run knex migrate:lastest')
+    execSync('npm run knex migrate:latest')
   })
 
   it('should be able to create a new transaction', async () => {
@@ -51,5 +51,36 @@ describe('Transactions routes', () => {
         amount: 500,
       }),
     ])
+  })
+
+  it('should be able to get a specific transaction', async () => {
+    const createTransactionResponse = await request(app.server)
+      .post('/transactions/create')
+      .send({
+        title: 'Test transaction',
+        amount: 500,
+        type: 'credit',
+      })
+
+    const cookies = createTransactionResponse.headers['set-cookie']
+
+    const response = await request(app.server)
+      .get('/transactions')
+      .set('Cookie', cookies)
+      .expect(200)
+
+    const transactionId = response.body.transactions[0].id
+
+    const getTransactionResponse = await request(app.server)
+      .get(`/transactions/${transactionId}`)
+      .set('Cookie', cookies)
+      .expect(200)
+
+    const expectedTransaction = expect.objectContaining({
+      title: 'Test transaction',
+      amount: 500,
+    })
+
+    expect(getTransactionResponse.body.transaction).toEqual(expectedTransaction)
   })
 })
