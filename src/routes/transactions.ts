@@ -5,6 +5,8 @@ import { db } from '../db'
 import { validateSessionId } from '../middlewares/validate-session-id'
 
 export async function transactionsRoutes(app: FastifyInstance) {
+  // app.addHook('prehandler', '...') // global middleware
+
   app.get('/', { preHandler: [validateSessionId] }, async (req, res) => {
     const { sessionId } = req.cookies
 
